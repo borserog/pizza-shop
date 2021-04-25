@@ -7,8 +7,12 @@ import br.edu.ifpb.padroes.api.pizzahot.PizzaHotPizza;
 import br.edu.ifpb.padroes.api.pizzahot.PizzaHotServiceImpl;
 import br.edu.ifpb.padroes.api.pizzahot.proxy.PizzaHotService;
 import br.edu.ifpb.padroes.domain.Pizza;
+import br.edu.ifpb.padroes.domain.adapter.DamenosAdapter;
+import br.edu.ifpb.padroes.domain.adapter.PizzahotAdapter;
 
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class PizzaShopService {
 
@@ -21,7 +25,6 @@ public class PizzaShopService {
         pizzaHotService = new PizzaHotServiceImpl();
     }
 
-    // TODO - implementar decorator para não precisar atributos da pizza como parâmetros no método
     public void orderPizza(Pizza pizza) {
         Float totalPrice = pizza.getPrice();
         String name = pizza.getName();
@@ -33,12 +36,19 @@ public class PizzaShopService {
 
     // TODO - implementar adapter para unificar pizzas vindas das APIs Damenos e PizzaHot num único método getPizzas()
     // TODO - public List<Pizza> getPizzas() {}
+    public List<Pizza> getPizzas() {
+        Stream<PizzahotAdapter> pizzasFromPizzaHot = getPizzasPizzaHot().stream().map(PizzahotAdapter::new);
+        Stream<DamenosAdapter> pizzasFromDamenosPizza = getPizzasDamenos().stream().map(DamenosAdapter::new);
 
-    public List<DamenosPizza> getPizzasDamenos() {
+        return Stream.concat(pizzasFromPizzaHot, pizzasFromDamenosPizza).collect(Collectors.toList());
+    }
+
+
+    private List<DamenosPizza> getPizzasDamenos() {
         return damenosService.getPizzas();
     }
 
-    public List<PizzaHotPizza> getPizzasPizzaHot() {
+    private List<PizzaHotPizza> getPizzasPizzaHot() {
         return pizzaHotService.getPizzas();
     }
 
